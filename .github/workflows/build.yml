@@ -1,0 +1,66 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    # A Mac runner costs roughly ten times a Linux one, and a roadmap edit
+    # cannot break a build. Anything under .github is deliberately not ignored:
+    # a change to the build itself has to be built.
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # SwiftUI, SwiftData and CloudKit do not exist on Linux, so this has to be
+    # a Mac even though Mac minutes cost roughly ten times Linux ones.
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 1
+
+      # The Xcode project is generated rather than committed; project.yml is the
+      # readable definition.
+      - name: Generate the Xcode project
+        run: |
+          set -euo pipefail
+          brew install xcodegen
+          xcodegen generate
+
+      # Not hard-coded: GitHub changes the device lineup between runner images,
+      # and a missing iPhone produces an error that does not obviously mean
+      # "that simulator no longer exists here".
+      - name: Choose an iOS simulator
+        id: simulator
+        run: |
+          set -euo pipefail
+          UDID=$(xcrun simctl list devices available --json \
+            | python3 .github/scripts/choose-simulator.py)
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
+      - name: Build
+        run: |
+          set -euo pipefail
+          xcodebuild build \
+            -project VEYA.xcodeproj \
+            -scheme VEYA \
+            -destination "id=${{ steps.simulator.outputs.udid }}" \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: What schemes does this project have?
+        if: failure()
+        run: xcodebuild -list -project VEYA.xcodeproj || true

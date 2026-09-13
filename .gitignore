@@ -1,0 +1,8 @@
+# Generated from project.yml by XcodeGen.
+VEYA.xcodeproj
+Info.plist
+
+.DS_Store
+build/
+DerivedData/
+*.xcresult

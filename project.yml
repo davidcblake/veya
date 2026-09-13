@@ -1,0 +1,48 @@
+# What the Xcode project is, in a file a person can read.
+# `xcodegen generate` turns this into VEYA.xcodeproj, which is not committed.
+name: VEYA
+
+options:
+  bundleIdPrefix: com.wpv
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+
+packages:
+  PlugAndPlay:
+    url: https://github.com/davidcblake/plug-and-play-ios
+    from: 0.1.0
+
+targets:
+  VEYA:
+    type: application
+    platform: iOS
+    sources:
+      - Sources
+    dependencies:
+      - package: PlugAndPlay
+        product: PPCore
+      - package: PlugAndPlay
+        product: PPData
+      - package: PlugAndPlay
+        product: PPDesign
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.wpv.veya
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "6.0"
+        # Off so CI builds without certificates. Xcode turns it on for a real
+        # build; TestFlight cannot accept an unsigned one.
+        CODE_SIGNING_ALLOWED: NO
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: VEYA
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        # Answered here so App Store Connect stops asking on every upload.
+        # True: the app uses no encryption beyond Apple's own HTTPS, because it
+        # makes no network calls at all.
+        ITSAppUsesNonExemptEncryption: false
