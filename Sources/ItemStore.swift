@@ -145,24 +145,25 @@ struct ItemStatusChange: Encodable, Sendable {
 
 /// Timestamps crossing the wire, in the one format Postgres sends and accepts.
 enum ItemTimes {
-    private static let withFraction: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        return formatter
-    }()
-
-    private static let plain: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime]
-        return formatter
-    }()
-
-    /// Postgres sends fractional seconds sometimes and not others, and a parser
-    /// that only handles one of those fails on roughly half the rows.
+    /// Built per call rather than held in a static.
+    ///
+    /// `ISO8601DateFormatter` is a class Foundation does not mark `Sendable`,
+    /// so a shared one is a data race the Swift 6 compiler refuses outright.
+    /// Making one costs nothing next to the network call that produced the text.
     static func date(from text: String?) -> Date? {
         guard let text else { return nil }
-        return withFraction.date(from: text) ?? plain.date(from: text)
+        let formatter = ISO8601DateFormatter()
+        // Postgres sends fractional seconds sometimes and not others, and a
+        // parser that handles only one of those fails on half the rows.
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let date = formatter.date(from: text) { return date }
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter.date(from: text)
     }
 
-    static func text(from date: Date) -> String { plain.string(from: date) }
+    static func text(from date: Date) -> String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter.string(from: date)
+    }
 }

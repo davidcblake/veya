@@ -19,6 +19,7 @@ targets:
     platform: iOS
     sources:
       - Sources
+      - Assets.xcassets
     dependencies:
       - package: PlugAndPlay
         product: PPCore
@@ -32,6 +33,8 @@ targets:
         MARKETING_VERSION: "1.0"
         CURRENT_PROJECT_VERSION: "1"
         SWIFT_VERSION: "6.0"
+        # A build with no icon is rejected before review even starts.
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         # Off so CI builds without certificates. Xcode turns it on for a real
         # build; TestFlight cannot accept an unsigned one.
         CODE_SIGNING_ALLOWED: NO
