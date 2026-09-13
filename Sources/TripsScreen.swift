@@ -37,9 +37,7 @@ struct TripsScreen: View {
             }
             .refreshable { await store.load() }
             .navigationDestination(for: TripRecord.self) { trip in
-                TripScreen(
-                    store: ItemStore(trip: trip, backend: store.backend, token: store.token)
-                )
+                TripScreen(trip: trip, backend: store.backend, token: store.token)
             }
             .sheet(isPresented: $isCreating) {
                 NewTripScreen(store: store)
