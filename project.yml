@@ -35,6 +35,11 @@ targets:
         # Off so CI builds without certificates. Xcode turns it on for a real
         # build; TestFlight cannot accept an unsigned one.
         CODE_SIGNING_ALLOWED: NO
+    entitlements:
+      path: VEYA.entitlements
+      properties:
+        com.apple.developer.applesignin:
+          - Default
     info:
       path: Info.plist
       properties:
@@ -42,7 +47,13 @@ targets:
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
-        # Answered here so App Store Connect stops asking on every upload.
-        # True: the app uses no encryption beyond Apple's own HTTPS, because it
-        # makes no network calls at all.
+        # The app talks to its backend over Apple's own HTTPS and uses no
+        # encryption beyond it, which is the exempt case. Answered here so App
+        # Store Connect stops asking on every upload.
         ITSAppUsesNonExemptEncryption: false
+        # Where the trip lives. The anon key belongs in the app -- it names the
+        # project, not a person, and row level security is what actually
+        # protects the data (supabase/0001_init.sql).
+        SUPABASE_URL: https://nacssflxldickvbvxwjh.supabase.co
+        SUPABASE_ANON_KEY: ""
+
