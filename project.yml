@@ -55,5 +55,5 @@ targets:
         # project, not a person, and row level security is what actually
         # protects the data (supabase/0001_init.sql).
         SUPABASE_URL: https://nacssflxldickvbvxwjh.supabase.co
-        SUPABASE_ANON_KEY: ""
+        SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hY3NzZmx4bGRpY2t2YnZ4d2poIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjY2ODAsImV4cCI6MjEwNDkwMjY4MH0.N9rFMRFOSuOMPutDAhjyqbaC2LcgeejJ4GPCnjy26Bw
 

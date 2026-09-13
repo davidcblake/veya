@@ -10,9 +10,9 @@ final class TripStore {
     private(set) var isLoading = false
     private(set) var failure: BackendFailure?
 
-    private let backend: Backend
+    let backend: Backend
+    let token: String
     private let userID: String
-    private let token: String
 
     init(backend: Backend, userID: String, token: String) {
         self.backend = backend

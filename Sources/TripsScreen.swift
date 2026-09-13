@@ -36,6 +36,11 @@ struct TripsScreen: View {
                 }
             }
             .refreshable { await store.load() }
+            .navigationDestination(for: TripRecord.self) { trip in
+                TripScreen(
+                    store: ItemStore(trip: trip, backend: store.backend, token: store.token)
+                )
+            }
             .sheet(isPresented: $isCreating) {
                 NewTripScreen(store: store)
             }
@@ -59,7 +64,7 @@ struct TripsScreen: View {
                         .foregroundStyle(theme.textSecondary)
                 }
                 ForEach(store.current) { trip in
-                    TripRow(trip: trip)
+                    NavigationLink(value: trip) { TripRow(trip: trip) }
                         .swipeActions(edge: .trailing) {
                             Button("Archive") {
                                 Task { await store.setStatus("archived", for: trip) }
@@ -71,7 +76,7 @@ struct TripsScreen: View {
             if !store.archived.isEmpty {
                 Section("Been there") {
                     ForEach(store.archived) { trip in
-                        TripRow(trip: trip)
+                        NavigationLink(value: trip) { TripRow(trip: trip) }
                             .swipeActions(edge: .trailing) {
                                 Button("Bring back") {
                                     Task { await store.setStatus("planning", for: trip) }
