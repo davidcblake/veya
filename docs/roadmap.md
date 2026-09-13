@@ -4,65 +4,71 @@
 commit as the work it describes. If it says something is done, it is done on a
 device — not "the code is written".
 
-Last updated: 2026-09-13
+Last updated: 2026-09-13 · **Croatia departs Tuesday 22 September.**
 
-## Phase 0 — The app exists ⏳ in progress
+## Phase 0 — It builds ✅ done
 
-- [x] Trip, plan, place and essential models, obeying CloudKit's schema rules
-      even though version one does not sync
-- [x] Today, Itinerary, Places, Essentials — all four screens, with adding,
-      editing and deleting
-- [x] First-run trip setup
-- [ ] **A green build.** Not yet run anywhere; there is no repository on GitHub
-      at the time of writing, so CI has never seen this
-- [ ] **Seen by a human eye.** Nothing here has been on a screen
+- [x] Xcode project generated from `project.yml`, green on CI against the
+      foundation at `0.1.0`
+- [x] An app icon, so a build can reach TestFlight at all
 
-## Phase 1 — On a phone ⬜
+## Phase 1 — Nine people, one trip ⏳ in progress
 
-- [ ] Signed in Xcode and run on a real iPhone
-- [ ] An app icon. **Required for TestFlight** — a build without one is rejected
-      before review
-- [ ] The Rome trip's actual content typed in, which is the first honest test of
-      whether the screens are the right ones
+- [x] Supabase schema with row level security — `supabase/0001_init.sql`, applied
+- [x] Sign in with Apple, token kept in the Keychain
+- [x] Trips: list, create, **archive rather than delete** — a finished trip stays
+      readable and stops sitting beside the one being planned
+- [x] Itinerary: day by day, add, mark done, skip, delete
+- [x] Stays and the booking checklist
+- [x] Re-reads every twenty seconds, so somebody else's change appears
+- [ ] **Offline reads — see below. This is the most important unbuilt thing.**
+- [ ] Inviting other people to a trip. **Nothing yet lets a second person join**,
+      which means the sharing this app exists for is untested by more than one
+      account
+- [ ] Expenses, splits and settle-up
+
+> ⚠️ **Nothing in this app has been run by anyone.** It compiles on CI, which is
+> a different claim. There is no Mac and no simulator in the environment it is
+> written in, and the network policy there blocks Supabase, so neither the
+> screens nor a single API call has been executed. The first run will be on
+> Dave's phone.
+
+## The offline problem, stated plainly
+
+`AGENTS.md` says every screen works in airplane mode and that a feature which
+cannot is not shipped. **Today no screen does.** Every read goes to Supabase, so
+a phone with no signal shows nothing at all — on a trip through Croatian
+villages, on foreign roaming, which is the exact situation this app exists for.
+
+The fix is a local cache: keep the last-known trip on the device, read from it
+first, and treat the network as the thing that refreshes it. Writes can stay
+online-only for version one and say so. That is the next piece of work and it
+outranks expenses.
 
 ## Phase 2 — TestFlight ⬜
 
-- [ ] App ID `com.wpv.veya` in the Developer portal — **does not exist**
-- [ ] An App Store Connect record for VEYA — **does not exist**
-- [ ] Archive uploaded from Xcode
-- [ ] Beta App Review, for external testers. Internal testers need no review;
-      external ones do, and it is usually under a day
-- [ ] Beta test information: what to test, a description, a feedback email
-
-**Done means:** somebody who is not Dave has it on their phone.
+- [ ] App ID `com.wpv.veya` with Sign in with Apple — **does not exist yet**
+- [ ] Supabase → Auth → Providers → Apple, client ID `com.wpv.veya`
+- [ ] An App Store Connect record
+- [ ] Archive uploaded from Dave's Mac
+- [ ] Beta App Review — external testers need it, internal ones do not
+- [ ] Nine people install it, with **Automatic Updates** switched on in TestFlight
+      so later builds arrive without being chased
 
 ## What version one deliberately leaves out
 
-**The map.** `first-app.md` promises offline map data. **MapKit does not do
-this** — it fetches tiles over the network and offers no download. The options
-are a third-party map (a dependency, so a decision record), pre-rendered images
-of the few areas that matter, or no map. For a family trip this is a real gap
-and it is not a schedule problem: it cannot be built as specified.
+**The map.** MapKit has no offline tiles, and a map that needs a connection is
+not a travel map. Options are a third-party map (a dependency, so a decision
+record), pre-rendered images, or none. None, for now.
 
-**Family sharing.** "Everyone sees the same trip" needs CloudKit sharing, which
-is unbuilt, and the foundation's `0020` leaves undecided what happens to a shared
-record when its owner deletes their account. Until then each person has their own
-copy. For one trip that is workable — one person keeps it, the others read theirs
-— but it is not what the spec promises.
-
-**Voice notes and photos.** `PPInput` has seams and fakes; nothing behind them
-talks to a microphone or camera yet. Typing works.
-
-**Sync between your own devices.** The store is `.thisDeviceOnly`. The foundation's
-CloudKit provider exists and **has never run on a device**; turning it on is one
-line and it waits until somebody has watched it work. The models already obey
-CloudKit's schema rules so that switch is not a migration.
+**Photos, receipts and the travel log.** All three are in the product spec and
+none is on the path to a family using this in Croatia.
 
 ## Known blockers
 
 | Blocker | Blocks | Status |
 |---|---|---|
-| No GitHub repository | Everything — this is uncommitted work on one machine | Waiting on Dave |
-| No App ID, no App Store Connect record | Phase 2 | Waiting on Dave |
-| No app icon | TestFlight | Needed before upload |
-| MapKit has no offline tiles | The map | Not solvable as specified |
+| No App ID, no App Store Connect record | TestFlight | Waiting on Dave |
+| Apple not yet enabled in Supabase Auth | Signing in at all | Waiting on Dave |
+| Nothing works offline | The trip itself | Next piece of work |
+| Nobody can be invited to a trip yet | The whole point of the app | Not started |

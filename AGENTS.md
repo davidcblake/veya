@@ -11,9 +11,15 @@ feature can't, it doesn't ship. The spec is
 `plug-and-play-ios/docs/first-app.md`, and this rule is the whole reason the
 travel app went first.
 
-Today that is easy to keep, because the app makes no network calls whatsoever.
-**The first feature that adds one is the moment this rule stops being free** —
-and it needs a decision record, not a judgement call in a pull request.
+**Today the app does not keep this rule.** Every screen reads from Supabase over
+the network, so with no signal there is nothing to show. That is a known,
+recorded gap rather than a decision — see `docs/roadmap.md` — and closing it is
+the highest-priority work in the repository. Nothing else should be built before
+a trip that is readable with the phone in airplane mode.
+
+The reason it was traded away is in `docs/decisions/0001`: nine people seeing one
+live itinerary needs a backend, and offline reads are a local cache on top of it
+rather than an alternative to it.
 
 ## What is different here
 

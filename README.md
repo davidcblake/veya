@@ -3,10 +3,8 @@
 A travel companion for a family trip, native on the
 [Plug and Play](https://github.com/davidcblake/plug-and-play-ios) foundation.
 
-**It makes no network calls at all.** Not "works offline with a cache" — there
-is nothing in it that asks a server anything. That is the point: the moment you
-most need to know which train, which street, what time the tickets are for, is
-exactly the moment the phone says no internet.
+Everyone on a trip sees the same itinerary. One person adds a restaurant and it
+appears on eight other phones.
 
 ## Build it
 
@@ -20,10 +18,22 @@ Signing is off in `project.yml` so CI can build without certificates. Turn it on
 in Xcode (Signing & Capabilities → your team) before running on a device or
 archiving for TestFlight.
 
-## What's in version one
+## Where the data lives
 
-Trip overview, day-by-day itinerary, places with the reason they're on the list,
-and essentials you can read out with no signal.
+Supabase — Postgres with row level security, and Sign in with Apple. The schema
+is `supabase/0001_init.sql` and every policy asks the same question: are you a
+member of this trip.
 
-**Not in version one:** the map, family sharing, voice notes and photos. Why, and
-what each would take, is in [docs/roadmap.md](docs/roadmap.md).
+**Not CloudKit**, for a reason worth knowing: SwiftData cannot do CloudKit
+sharing at all. `CKShare` lives in `NSPersistentCloudKitContainer`, which
+SwiftData does not expose, so a trip shared between nine people is not something
+the foundation's own sync can do today.
+
+The anon key is in `project.yml` on purpose. It names the project, not a person;
+the policies are what protect the data.
+
+## What version one leaves out
+
+The map, photos, receipts, and the travel log. See
+[docs/roadmap.md](docs/roadmap.md) — including the one that matters most, which
+is that **nothing works offline yet.**
